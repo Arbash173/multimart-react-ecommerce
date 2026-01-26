@@ -5,13 +5,35 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
+import { StatsigProvider } from "statsig-react";
+import { initSentry } from "./services/sentry";
+import { STATSIG_CLIENT_KEY } from "./services/statsig";
+
+// Initialize Sentry
+initSentry();
+
+// Generate a random User ID for testing Statsig experiments
+const randomUserID = Math.floor(Math.random() * 1000000).toString();
+const user = {
+  userID: randomUserID,
+  email: `user-${randomUserID}@example.com`,
+};
+
+console.log("Simulating User ID:", randomUserID);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <StatsigProvider
+      sdkKey={STATSIG_CLIENT_KEY}
+      user={user}
+      waitForInitialization={true}
+      options={{ environment: { tier: "development" } }}
+    >
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </StatsigProvider>
   </React.StrictMode>
 );
 

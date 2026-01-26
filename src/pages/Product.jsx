@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import ProductDetails from "../components/ProductDetails/ProductDetails";
 import ProductReviews from "../components/ProductReviews/ProductReviews";
 import useWindowScrollToTop from "../hooks/useWindowScrollToTop";
+import * as Sentry from "@sentry/react";
 
 const Product = () => {
   const { id } = useParams();
@@ -26,6 +27,13 @@ const Product = () => {
           item.id !== selectedProduct?.id
       )
     );
+    if (selectedProduct) {
+      Sentry.addBreadcrumb({
+        category: "navigation",
+        message: `Viewed product: ${selectedProduct.productName} (ID: ${id})`,
+        level: "info",
+      });
+    }
   }, [selectedProduct, id]);
 
   useWindowScrollToTop();

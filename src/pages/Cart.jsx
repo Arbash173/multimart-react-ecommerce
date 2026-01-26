@@ -6,6 +6,8 @@ import {
   decreaseQty,
   deleteProduct,
 } from "../app/features/cart/cartSlice";
+import { useExperiment } from "statsig-react";
+import { EXPERIMENT_CHECKOUT_BUTTON } from "../services/statsig";
 
 const Cart = () => {
   const { cartList } = useSelector((state) => state.cart);
@@ -15,6 +17,23 @@ const Cart = () => {
     (price, item) => price + item.qty * item.price,
     0
   );
+
+  // Statsig Experiment: Checkout Button
+  const { config } = useExperiment(EXPERIMENT_CHECKOUT_BUTTON);
+  const buttonText = config.get("text", "Checkout");
+  const buttonColor = config.get("color", "#0f3460"); // default dark blue
+
+  // Sentry Error Trigger
+  const triggerError = () => {
+    try {
+      throw new Error("Sentry Test Error from Cart Page");
+    } catch (error) {
+      // We can also let it bubble up, but sometimes React catches it. 
+      // To test Sentry effectively we can also explicitly capture it if needed, 
+      // or just let it crash the event handler which Sentry catches.
+      throw error;
+    }
+  };
   useEffect(() => {
     window.scrollTo(0, 0);
     // if(CartItem.length ===0) {
@@ -82,6 +101,33 @@ const Cart = () => {
               <div className=" d_flex">
                 <h4>Total Price :</h4>
                 <h3>${totalPrice}.00</h3>
+              </div>
+
+              <div style={{ marginTop: "20px" }}>
+                <button
+                  style={{
+                    backgroundColor: buttonColor,
+                    color: "white",
+                    width: "100%",
+                    padding: "10px",
+                    border: "none",
+                    borderRadius: "5px",
+                    fontWeight: "bold",
+                    cursor: "pointer"
+                  }}
+                >
+                  {buttonText}
+                </button>
+              </div>
+
+              <div style={{ marginTop: "30px", borderTop: "1px solid #ddd", paddingTop: "10px" }}>
+                <p style={{ fontSize: "12px", color: "#666" }}>Dev Tools:</p>
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={triggerError}
+                >
+                  Test Sentry Error
+                </button>
               </div>
             </div>
           </Col>
