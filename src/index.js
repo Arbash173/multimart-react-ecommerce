@@ -21,6 +21,19 @@ const user = {
 
 console.log("Simulating User ID:", randomUserID);
 
+// Check if Statsig key is configured
+const isStatsigConfigured = STATSIG_CLIENT_KEY && !STATSIG_CLIENT_KEY.includes("YOUR_");
+
+const statsigOptions = {
+  environment: { tier: "development" },
+  // If not configured, use localMode to prevent network errors
+  localMode: !isStatsigConfigured
+};
+
+if (!isStatsigConfigured) {
+  console.warn("Statsig Client Key is not configured. Running in localMode (experiments will use defaults).");
+}
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
@@ -28,7 +41,7 @@ root.render(
       sdkKey={STATSIG_CLIENT_KEY}
       user={user}
       waitForInitialization={true}
-      options={{ environment: { tier: "development" } }}
+      options={statsigOptions}
     >
       <Provider store={store}>
         <App />

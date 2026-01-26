@@ -1,12 +1,16 @@
 import * as Sentry from "@sentry/react";
-import { useEffect } from "react";
-import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from "react-router-dom";
 
 export const initSentry = () => {
+  const dsn = "YOUR_SENTRY_DSN_HERE";
+
+  if (dsn === "YOUR_SENTRY_DSN_HERE" || !dsn) {
+    console.warn("Sentry DSN is not configured. Sentry will not be initialized.");
+    return;
+  }
+
   Sentry.init({
-    // REPLACE WITH YOUR SENTRY DSN
-    dsn: "YOUR_SENTRY_DSN_HERE",
-    
+    dsn: dsn,
+
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
